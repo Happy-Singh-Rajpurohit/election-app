@@ -1,11 +1,4 @@
--- =========================================================
--- ONLINE ELECTION MANAGEMENT & AUDIT SYSTEM (ORACLE)
--- COMPLETE BACKEND (DDL + SEQUENCES + TRIGGERS + PROCEDURE)
--- =========================================================
 
--- -----------------------------
--- CLEANUP (ignore errors if any)
--- -----------------------------
 BEGIN
   EXECUTE IMMEDIATE 'DROP TRIGGER trg_audit_vote_insert';
 EXCEPTION WHEN OTHERS THEN NULL; END;
@@ -44,9 +37,9 @@ BEGIN
 EXCEPTION WHEN OTHERS THEN NULL; END;
 /
 
--- -----------------------------
--- TABLES
--- -----------------------------
+// -- -----------------------------
+// -- TABLES
+  
 CREATE TABLE Election (
   election_id   NUMBER PRIMARY KEY,
   name          VARCHAR2(100) NOT NULL,
@@ -128,9 +121,9 @@ CREATE TABLE AuditLog (
   ts        TIMESTAMP DEFAULT SYSTIMESTAMP
 );
 
--- -----------------------------
--- SEQUENCES
--- -----------------------------
+// -- -----------------------------
+// -- SEQUENCES
+
 CREATE SEQUENCE seq_election START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE seq_constituency START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE seq_voter START WITH 1 INCREMENT BY 1;
@@ -140,9 +133,9 @@ CREATE SEQUENCE seq_vote START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE seq_officer START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE seq_audit START WITH 1 INCREMENT BY 1;
 
--- -----------------------------
--- AUTO-ID TRIGGERS
--- -----------------------------
+// -- -----------------------------
+// -- AUTO-ID TRIGGERS
+
 CREATE OR REPLACE TRIGGER trg_election_id
 BEFORE INSERT ON Election FOR EACH ROW
 BEGIN
@@ -215,9 +208,9 @@ BEGIN
 END;
 /
 
--- -----------------------------
--- AUDIT TRIGGER (KEY FEATURE)
--- -----------------------------
+// -- -----------------------------
+// -- AUDIT TRIGGER (KEY FEATURE)
+
 CREATE OR REPLACE TRIGGER trg_audit_vote_insert
 AFTER INSERT ON Vote
 FOR EACH ROW
@@ -233,9 +226,9 @@ BEGIN
 END;
 /
 
--- -----------------------------
--- PROCEDURE: CAST VOTE
--- -----------------------------
+// -- -----------------------------
+// -- PROCEDURE: CAST VOTE
+
 CREATE OR REPLACE PROCEDURE cast_vote (
   p_voter_id     IN NUMBER,
   p_candidate_id IN NUMBER,
@@ -283,9 +276,9 @@ EXCEPTION
 END;
 /
 
--- -----------------------------
--- SAMPLE DATA
--- -----------------------------
+// -- -----------------------------
+// -- SAMPLE DATA
+
 INSERT INTO Election (name, start_date, end_date, status)
 VALUES ('General Election 2025', DATE '2025-11-01', DATE '2025-11-30', 'Ongoing');
 
@@ -303,28 +296,28 @@ VALUES ('Amit Sharma', 'amit@mail.com', 'hash456', 1, 1, 1, 'Approved');
 
 COMMIT;
 
--- -----------------------------
--- TEST CALL
--- -----------------------------
+// -- -----------------------------
+// -- TEST CALL
+
 BEGIN
   cast_vote(1, 1, 1);
 END;
 /
 
--- -----------------------------
--- RESULT QUERY
--- -----------------------------
+// -- -----------------------------
+// -- RESULT QUERY
+
 SELECT c.name AS candidate, COUNT(v.vote_id) AS votes
 FROM Vote v
 JOIN Candidate c ON v.candidate_id = c.candidate_id
 GROUP BY c.name
 ORDER BY votes DESC;
 
--- -----------------------------
--- AUDIT LOG VIEW
--- -----------------------------
+// -- -----------------------------
+// -- AUDIT LOG VIEW
+
 SELECT * FROM AuditLog ORDER BY ts DESC;
 
--- =============================
--- END OF SCRIPT
--- =============================
+// -- =============================
+// -- END OF SCRIPT
+// -- =============================
